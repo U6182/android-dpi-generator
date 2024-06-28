@@ -1,29 +1,31 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AndroidDPIGenerator
 {
+
+    /**
+    <summary>Android開発に必要な画像をDpiごとに生成を行うクラス</summary>
+    <author>木村 憂哉</author>
+    <date>2023-11-05</date>
+    */
     public partial class AndroidDpiGeneratorForm : Form
     {
 
-        //DPIの種類
+        /// <summary>DPIの種類を表す配列</summary>
         private string[] dpiNames = { "xxxhdpi", "xxhdpi", "xhdpi", "hdpi", "mdpi", "ldpi" };
 
-        //選択したパスリスト
+        /// <summary>選択したパスリスト</summary>
         private List<string> selectPathList = new List<string>();
-        //変更されたファイル名
+
+        /// <summary>変更されたファイル名のリスト</summary>
         private string convertPath = "";
 
-
+        /// <summary>DPIインデックスの列挙型</summary>
         private enum DpiIndex
         {
             xxxhdpi,
@@ -34,6 +36,9 @@ namespace AndroidDPIGenerator
             ldpi,
         }
 
+        /**
+        <summary>コンストラクタ</summary>
+        */
         public AndroidDpiGeneratorForm()
         {
             InitializeComponent();
@@ -42,12 +47,12 @@ namespace AndroidDPIGenerator
 
         /**
         <summary>ファイルを開くボタンの処理</summary>
-        <remarks>sender オブジェクト</remarks>
-        <remarks>e ボタンクリックのイベントの種類</remarks>
+        <param name="sender">オブジェクト</param>
+        <param name="e">ボタンクリックのイベントの種類</param>
         */
         private void FileOpenBtn_Click(object sender, EventArgs e)
         {
-            //System.Console.WriteLine(this.dpiSelectCmbBox.SelectedIndex);
+
             using (var fileDialog = new OpenFileDialog()
             {
                 InitialDirectory = @"D:"
@@ -77,33 +82,28 @@ namespace AndroidDPIGenerator
                         setListView(path);
                         this.selectPathList.Add(path);
                     }
-
                 }
-
             }
         }
 
         /**
         <summary>ListViewの設定を行う</summary>
-        <remarks>path 変換する画像パス</remarks>
+        <param name="path">変換する画像パス</param>
         */
         private void setListView(string path)
         {
-
             //imageListの設定
             if (this.listView.SmallImageList == null)
             {
                 ImageList imageList = new ImageList();
                 imageList.ImageSize = new Size(64, 64);
                 this.listView.SmallImageList = imageList;
-                
             }
 
             //ListViewの変換情報の取得
             Bitmap bitmap = new Bitmap(path);
             string size = bitmap.Width.ToString() + "×" + bitmap.Height.ToString();
             string[] data = { path, size };
-
 
             //ListViewのアイコン取得
             imageList.Images.Add(Image.FromFile(path));
@@ -114,9 +114,13 @@ namespace AndroidDPIGenerator
             ListViewItem item = new ListViewItem(data, imageIndex);
             this.listView.Items.Add(item);
 
-            
         }
 
+        /**
+        <summary>生成ボタンの処理</summary>
+        <param name="sender">オブジェクト</param>
+        <param name="e">ボタンクリックのイベントの種類</param>
+        */
         private void GeneratorBtn_Click(object sender, EventArgs e)
         {
             //画像が選択されていない場合
@@ -148,6 +152,11 @@ namespace AndroidDPIGenerator
 
         }
 
+        /**
+        <summary>DPI画像の生成処理</summary>
+        <param name="path">生成画像元のパス</param>
+        <returns>生成の成否を表す真偽値</returns>
+        */
         private bool CreateDpiImage(string path)
         {
             int dpiSelectNo = this.dpiSelectCmbBox.SelectedIndex;
@@ -163,6 +172,11 @@ namespace AndroidDPIGenerator
 
         }
 
+        /**
+        <summary>生成したDPI画像の出力処理</summary>
+        <param name="dpiNo">元画像のDPI</param>
+        <param name="path">生成画像元のパス</param>
+        */
         private void OutDpiImage(int dpiNo, string path)
         {
             //DPI種別ごとの倍率
@@ -202,10 +216,12 @@ namespace AndroidDPIGenerator
                 }
                 outBitmap.Save(outBitmapPaht, format);
             }
-            
-
 
         }
+
+        /**
+        <summary>出力用ディレクトリの生成</summary>
+        */
         private void CreateDpiDirectory()
         {
             //フォルダ作成
